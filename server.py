@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from YSL import StreamLiker
+from ysl.YSL import StreamLiker
 import os
 
 email = os.environ.get('TEST_EMAIL')
