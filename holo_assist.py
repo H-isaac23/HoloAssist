@@ -52,6 +52,7 @@ class HoloAssist:
         self.link = 'https://hololive.jetri.co/#/watch?videoId=' + ','.join(links)
 
     def open_holotools(self):
+        self.close_browser()
         print("Logging into google...\n")
 
         option = FirefoxOptions()
@@ -116,11 +117,14 @@ class HoloAssist:
                 print("Yeah an error")
 
         time.sleep(5)
-        driver.quit()
 
     def clear_data(self):
         self.num_streams = None
         self.link = None
+
+    @staticmethod
+    def close_browser():
+        os.system("TASKKILL /F /IM firefox.exe")
 
 
 hta = HoloAssist()
