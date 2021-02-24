@@ -102,7 +102,7 @@ class HoloAssist:
         driver.refresh()
         time.sleep(10)
 
-        for i in range(1, self.num_streams):
+        for i in range(1, self.num_streams + 1):
             try:
                 num = str(i)
                 print(num, f'/html/body/div/main/div/div/div/div[3]/div[{num}]')
