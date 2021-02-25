@@ -4,16 +4,27 @@
 <head>
   <title>Test</title>
   <meta charset=utf-8>
+  <link rel="stylesheet" href="index.css">
+  <script type="text/javascript" src="button.js"></script>
 </head>
+
 <body>
-    <h1>My Website</h1>
-    <a href='/like'><button id="like-button">Like</button></a>
-    <script>
-      document.querySelector('#like-button').addEventListener('click', disable)
 
-      function disable(){
-        document.getElementById('like-button').disabled = 'disabled';
-      }
+  <div id="container">
+    <button class="learn-more">
+      <span class="circle" aria-hidden="true">
+        <span class="icon arrow"></span>
+      </span>
+      <span class="button-text">Like</span>
+    </button>
+  </div>
+  
+  <script>
+    document.querySelector('#like-button').addEventListener('click', disable)
 
-    </script>
+    function disable(){
+      document.getElementById('like-button').disabled = 'disabled';
+    }
+
+  </script>
 </body>

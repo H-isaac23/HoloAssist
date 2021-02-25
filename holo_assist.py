@@ -5,7 +5,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
-from YSL import StreamLiker
+from ysl.YSL import StreamLiker
 from random import randint
 import os
 import time
@@ -52,75 +52,84 @@ class HoloAssist:
         self.link = 'https://hololive.jetri.co/#/watch?videoId=' + ','.join(links)
 
     def open_holotools(self):
-        print("Logging into google...\n")
+        if self.link == 'https://hololive.jetri.co/#/watch?videoId=':
+            print("No streamers are currently streaming.")
+        else:
+            self.close_browser()
+            print("Logging into google...\n")
 
-        option = FirefoxOptions()
-        option.add_argument('--mute-audio')
-        path = 'C:/Program Files (x86)/geckodriver.exe'
-        driver = webdriver.Firefox(options=option, executable_path=path)
+            option = FirefoxOptions()
+            option.add_argument('--mute-audio')
+            path = 'C:/Program Files (x86)/geckodriver.exe'
+            driver = webdriver.Firefox(options=option, executable_path=path)
 
-        EMAIL = os.environ.get("TEST_EMAIL")
-        PASSWORD = os.environ.get("TEST_PASS")
+            EMAIL = os.environ.get("TEST_EMAIL")
+            PASSWORD = os.environ.get("TEST_PASS")
 
-        driver.get(
-            """https://accounts.google.com/signin/v2/identifier?hl=en&passive=true&continue=https%3A%2F%2Fwww.google.com%2F&ec=GAZAAQ&flowName=GlifWebSignIn&flowEntry=ServiceLogin""")
-        try:
-            email = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="identifierId"]'))
-            )
-            time.sleep(randint(4, 7))
-            email.send_keys(EMAIL)
-            email.send_keys(Keys.RETURN)
-        except:
-            print('There is a problem in the email idk lmao, driver quitting')
-            driver.quit()
-
-        time.sleep(5)
-
-        try:
-            password = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH,
-                     "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"))
-            )
-            time.sleep(3)
-            password.send_keys(PASSWORD)
-            password.send_keys(Keys.RETURN)
-        except:
-            print("Password textbox not found")
-            driver.quit()
-
-        time.sleep(5)
-
-        driver.get(self.link)
-        WebDriverWait(driver, 30).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '/html/body/div/main/div/div/div/div[3]/div[1]'))
-        )
-        driver.execute_script("localStorage.setItem('rulePauseOther', 0);")
-        time.sleep(5)
-        driver.refresh()
-        time.sleep(10)
-
-        for i in range(1, self.num_streams):
+            driver.get(
+                """https://accounts.google.com/signin/v2/identifier?hl=en&passive=true&continue=https%3A%2F%2Fwww.google.com%2F&ec=GAZAAQ&flowName=GlifWebSignIn&flowEntry=ServiceLogin""")
             try:
-                num = str(i)
-                print(num, f'/html/body/div/main/div/div/div/div[3]/div[{num}]')
-                elm = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable(
-                        (By.XPATH, f'/html/body/div/main/div/div/div/div[3]/div[{num}]'))
+                email = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="identifierId"]'))
                 )
-                ActionChains(driver).move_to_element(elm).click(elm).perform()
-                time.sleep(2)
+                time.sleep(randint(4, 7))
+                email.send_keys(EMAIL)
+                email.send_keys(Keys.RETURN)
             except:
-                print("Yeah an error")
+                print('There is a problem in the email idk lmao, driver quitting')
+                driver.quit()
 
-        time.sleep(5)
-        driver.quit()
+            time.sleep(5)
+
+            try:
+                password = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH,
+                         "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"))
+                )
+                time.sleep(3)
+                password.send_keys(PASSWORD)
+                password.send_keys(Keys.RETURN)
+            except:
+                print("Password textbox not found")
+                driver.quit()
+
+            time.sleep(5)
+
+            driver.get(self.link)
+            WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, '/html/body/div/main/div/div/div/div[3]/div[1]'))
+            )
+            driver.execute_script("localStorage.setItem('rulePauseOther', 0);")
+            time.sleep(5)
+            driver.refresh()
+            time.sleep(10)
+
+            for i in range(1, self.num_streams + 1):
+                try:
+                    num = str(i)
+                    print(num, f'/html/body/div/main/div/div/div/div[3]/div[{num}]')
+                    elm = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable(
+                            (By.XPATH, f'/html/body/div/main/div/div/div/div[3]/div[{num}]'))
+                    )
+                    ActionChains(driver).move_to_element(elm).click(elm).perform()
+                    time.sleep(2)
+                except:
+                    print("Yeah an error")
+
+            mute_videos = driver.find_element_by_xpath('/html/body/div/main/div/div/div/div[1]/div[4]/div[2]/div[2]')
+            ActionChains(driver).move_to_element(mute_videos).click().perform()
+            time.sleep(5)
 
     def clear_data(self):
         self.num_streams = None
         self.link = None
+
+    @staticmethod
+    def close_browser():
+        os.system("TASKKILL /F /IM firefox.exe")
 
 
 hta = HoloAssist()
