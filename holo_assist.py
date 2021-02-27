@@ -1,138 +1,136 @@
-from selenium import webdriver
+from ysl.YSL import StreamLiker
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from ysl.YSL import StreamLiker
-from random import randint
+from collections import OrderedDict
 import os
 import time
 
 
-class HoloAssist:
-    def __init__(self):
-        self.num_streams = None
+class HoloAssist(StreamLiker):
+    def __init__(self, channels_path, email, passwd):
+        super(HoloAssist, self).__init__(channels_path, email, passwd)
         self.link = None
 
-    def get_link_ids(self):
-
-        email = os.environ.get('TEST_EMAIL')
-        passwd = os.environ.get('TEST_PASS')
-        sl = StreamLiker('channel ids.txt', email, passwd)
-        sl.is_streaming()
-        self.num_streams = sl.number_of_active_streams
-
-        path = 'C:/Program Files (x86)/geckodriver.exe'
-        options = FirefoxOptions()
-        options.add_argument('--headless')
-        options.add_argument('--mute-audio')
-        driver = webdriver.Firefox(options=options, executable_path=path)
-        links = []
-
-        for name, channel_link in sl.currently_streaming.items():
-            driver.get(channel_link + '/videos')
-
-            try:
-                video_url = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="thumbnail"]'))
-                )
-                link_id = video_url.get_attribute('href')[32:]
-
-                links.append(link_id)
-
-            except:
-                print("XPATH not found")
-                driver.quit()
-                return None
-
-        driver.quit()
-
-        self.link = 'https://hololive.jetri.co/#/watch?videoId=' + ','.join(links)
-
     def open_holotools(self):
+        print()
+        self.link = 'https://hololive.jetri.co/#/watch?videoId=' + ",".join(self.active_streams)
+
         if self.link == 'https://hololive.jetri.co/#/watch?videoId=':
             print("No streamers are currently streaming.")
+            self.driver_quit()
         else:
-            self.close_browser()
-            print("Logging into google...\n")
-
-            option = FirefoxOptions()
-            option.add_argument('--mute-audio')
-            path = 'C:/Program Files (x86)/geckodriver.exe'
-            driver = webdriver.Firefox(options=option, executable_path=path)
-
-            EMAIL = os.environ.get("TEST_EMAIL")
-            PASSWORD = os.environ.get("TEST_PASS")
-
-            driver.get(
-                """https://accounts.google.com/signin/v2/identifier?hl=en&passive=true&continue=https%3A%2F%2Fwww.google.com%2F&ec=GAZAAQ&flowName=GlifWebSignIn&flowEntry=ServiceLogin""")
-            try:
-                email = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="identifierId"]'))
-                )
-                time.sleep(randint(4, 7))
-                email.send_keys(EMAIL)
-                email.send_keys(Keys.RETURN)
-            except:
-                print('There is a problem in the email idk lmao, driver quitting')
-                driver.quit()
-
-            time.sleep(5)
-
-            try:
-                password = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH,
-                         "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"))
-                )
-                time.sleep(3)
-                password.send_keys(PASSWORD)
-                password.send_keys(Keys.RETURN)
-            except:
-                print("Password textbox not found")
-                driver.quit()
-
-            time.sleep(5)
-
-            driver.get(self.link)
-            WebDriverWait(driver, 30).until(
+            self.driver.get(self.link)
+            WebDriverWait(self.driver, 30).until(
                 EC.element_to_be_clickable(
                     (By.XPATH, '/html/body/div/main/div/div/div/div[3]/div[1]'))
             )
-            driver.execute_script("localStorage.setItem('rulePauseOther', 0);")
+
+            self.driver.execute_script("localStorage.setItem('rulePauseOther', 0);")
             time.sleep(5)
-            driver.refresh()
+            self.driver.refresh()
             time.sleep(10)
 
-            for i in range(1, self.num_streams + 1):
+            for i in range(1, self.number_of_active_streams + 1):
                 try:
                     num = str(i)
                     print(num, f'/html/body/div/main/div/div/div/div[3]/div[{num}]')
-                    elm = WebDriverWait(driver, 10).until(
+                    elm = WebDriverWait(self.driver, 10).until(
                         EC.element_to_be_clickable(
                             (By.XPATH, f'/html/body/div/main/div/div/div/div[3]/div[{num}]'))
                     )
-                    ActionChains(driver).move_to_element(elm).click(elm).perform()
+                    ActionChains(self.driver).move_to_element(elm).click(elm).perform()
                     time.sleep(2)
                 except:
                     print("Yeah an error")
 
-            mute_videos = driver.find_element_by_xpath('/html/body/div/main/div/div/div/div[1]/div[4]/div[2]/div[2]')
-            ActionChains(driver).move_to_element(mute_videos).click().perform()
+            mute_videos = self.driver.find_element_by_xpath('/html/body/div/main/div/div/div/div[1]/div[4]/div[2]/div[2]')
+            ActionChains(self.driver).move_to_element(mute_videos).click().perform()
             time.sleep(5)
 
+
     def clear_data(self):
-        self.num_streams = None
+        self.start_time = None
+        self.time_started = None
+        self.total_time_elapsed = 0
+        self.time_ended = None
+
+        self.currently_streaming = {}
+        self.streams_liked = {}
+        self.streams_liked_id = []
+        self.video_ids = []
+        self.stream_data = OrderedDict()
+        self.number_of_active_streams = 0
+        self.number_of_to_be_liked_streams = 0
+        self.active_streams = []
+        self.date = None
         self.link = None
 
     @staticmethod
     def close_browser():
         os.system("TASKKILL /F /IM firefox.exe")
 
+    def send_email(self):
+        self.driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
+        self.driver.get("https://mail.google.com/mail/u/0/#inbox")
 
-hta = HoloAssist()
-hta.get_link_ids()
-hta.open_holotools()
-hta.clear_data()
+        compose = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id=":bv"]/div/div'))
+        )
+
+        ActionChains(self.driver).move_to_element(compose).click(compose).perform()
+
+        to = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '/html/body/div[23]/div/div/div/div[1]/div[3]/div[1]/div[1]/div/div/div/div[3]/div/div/div[4]/table/tbody/tr/td[2]/form/div[1]/table/tbody/tr[1]/td[2]/div/div/textarea'))
+        )
+
+        ActionChains(self.driver).move_to_element(to).click(to).perform()
+
+        to.send_keys("dev.isaac23@gmail.com")
+
+        sub = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH,
+                                        '/html/body/div[23]/div/div/div/div[1]/div[3]/div[1]/div[1]/div/div/div/div[3]/div/div/div[4]/table/tbody/tr/td[2]/form/div[3]/div/input'))
+        )
+
+        ActionChains(self.driver).move_to_element(sub).click(sub).perform()
+
+        sub.send_keys("Test")
+
+        msg = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH,
+                                        '/html/body/div[23]/div/div/div/div[1]/div[3]/div[1]/div[1]/div/div/div/div[3]/div/div/div[4]/table/tbody/tr/td[2]/table/tbody/tr[1]/td/div/div[1]/div[2]/div[1]/div/table/tbody/tr/td[2]/div[2]/div'))
+        )
+
+        ActionChains(self.driver).move_to_element(msg).click(msg).perform()
+
+        msg.send_keys("Hi")
+
+        send = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH,
+                                        '/html/body/div[23]/div/div/div/div[1]/div[3]/div[1]/div[1]/div/div/div/div[3]/div/div/div[4]/table/tbody/tr/td[2]/table/tbody/tr[2]/td/div/div/div[4]/table/tbody/tr/td[1]/div/div[2]'))
+        )
+
+        ActionChains(self.driver).move_to_element(send).click(send).perform()
+
+
+
+if __name__ == "__main__":
+    email = os.environ.get('TEST_EMAIL')
+    passwd = os.environ.get('TEST_PASS')
+    hta = HoloAssist('channel ids.txt', email, passwd)
+    hta.close_browser()
+    hta.config_driver('C:/Program Files (x86)/geckodriver.exe', ['--mute-audio'])
+    hta.start_liking_with_data("isaac", "localhost", "DevAisha23!", "YSL", "stream_data",
+                              "C:/Users/ISAAC/PycharmProjects/videoLikerYoutube2.0/Stream data")
+    hta.open_holotools()
+    hta.clear_data()
+
+    # hta = HoloAssist(email, passwd, sl.number_of_active_streams)
+    # hta.config_driver('C:/Program Files (x86)/geckodriver.exe', ['--mute-audio'])
+    # hta.link = 'https://hololive.jetri.co/#/watch?videoId=' + ','.join(sl.streams_liked_id)
+    # hta.open_holotools()
+    # hta.clear_data()
+    # hta.driver_quit()
