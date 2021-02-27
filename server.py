@@ -1,10 +1,11 @@
 from flask import Flask, render_template
-from ysl.YSL import StreamLiker
+from holo_assist import HoloAssist
 import os
 
 email = os.environ.get('TEST_EMAIL')
 passwd = os.environ.get('TEST_PASS')
-sl = StreamLiker('channel ids.txt', email, passwd)
+hta = HoloAssist('channel ids.txt', email, passwd)
+hta.close_browser()
 
 app = Flask(__name__)
 
@@ -14,8 +15,12 @@ def index():
 
 @app.route('/like')
 def like():
-    sl.start_liking_with_data("isaac", "localhost", "DevAisha23!", "YSL", "stream_data")
-    sl.clear_data()
+    hta.close_browser()
+    hta.config_driver('C:/Program Files (x86)/geckodriver.exe', ['--mute-audio'])
+    hta.start_liking_with_data("isaac", "localhost", "DevAisha23!", "YSL", "stream_data",
+                               "C:/Users/ISAAC/PycharmProjects/videoLikerYoutube2.0/Stream data")
+    hta.open_holotools()
+    hta.clear_data()
     return render_template('like.html')
 
 if __name__ == '__main__':
