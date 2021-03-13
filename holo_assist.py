@@ -1,4 +1,4 @@
-from ysl.YSL import StreamLiker
+from YSL import StreamLiker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -122,7 +122,6 @@ if __name__ == "__main__":
     passwd = os.environ.get('TEST_PASS')
     hta = HoloAssist('channel ids.txt', email, passwd)
     hta.close_browser()
-    hta.config_driver('C:/Program Files (x86)/geckodriver.exe', ['--mute-audio'])
     hta.start_liking_with_data("isaac", "localhost", "DevAisha23!", "YSL", "stream_data",
                               "C:/Users/ISAAC/PycharmProjects/videoLikerYoutube2.0/Stream data")
     hta.open_holotools()
