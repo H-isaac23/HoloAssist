@@ -16,7 +16,6 @@ def index():
 @app.route('/like')
 def like():
     hta.close_browser()
-    hta.config_driver('C:/Program Files (x86)/geckodriver.exe', ['--mute-audio'])
     hta.start_liking_with_data("isaac", "localhost", "DevAisha23!", "YSL", "stream_data",
                                "C:/Users/ISAAC/PycharmProjects/videoLikerYoutube2.0/Stream data")
     hta.open_holotools()
@@ -24,4 +23,4 @@ def like():
     return render_template('like.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.1.10')
+    app.run(debug=True, host='192.168.1.12')
