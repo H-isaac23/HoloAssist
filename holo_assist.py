@@ -2,9 +2,10 @@ from ysl.YSL import StreamLiker
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
+import smtplib, ssl
 from selenium.webdriver.common.action_chains import ActionChains
 from collections import OrderedDict
+import subprocess
 import os
 import time
 
@@ -12,6 +13,7 @@ import time
 class HoloAssist(StreamLiker):
     def __init__(self, channels_path):
         super(HoloAssist, self).__init__(channels_path)
+        self.ip_add = None
         self.link = None
 
     def open_holotools(self):
@@ -50,24 +52,23 @@ class HoloAssist(StreamLiker):
             ActionChains(self.driver).move_to_element(mute_videos).click().perform()
             time.sleep(5)
 
-
-    def clear_data(self):
-        self.start_time = None
-        self.time_started = None
-        self.total_time_elapsed = 0
-        self.time_ended = None
-
-        self.currently_streaming = {}
-        self.streams_liked = {}
-        self.streams_liked_id = []
-        self.video_ids = []
-        self.stream_data = OrderedDict()
-        self.number_of_active_streams = 0
-        self.number_of_to_be_liked_streams = 0
-        self.active_streams = []
-        self.date = None
-        self.link = None
-
     @staticmethod
     def close_browser():
         os.system("TASKKILL /F /IM firefox.exe")
+
+    def send_ip_add(self):
+        port = 465  # For SSL
+        password = os.environ.get("TEST_PASS")
+
+        # Create a secure SSL context
+        context = ssl.create_default_context()
+
+        receiver = "dev.isaac23@gmail.com"
+        sender = "sparklypotato23@gmail.com"
+
+        data = subprocess.check_output(['ipconfig']).decode('utf-8').split('\n')
+        self.ip_add = data[23][39:].strip()
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+            server.login("sparklypotato23@gmail.com", password)
+            server.sendmail(sender, receiver, self.ip_add)
