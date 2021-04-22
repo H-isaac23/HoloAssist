@@ -24,7 +24,7 @@ def index():
 def like():
     hta.close_browser()
     hta.get_start_time()
-    hta.is_streaming()
+    hta.check_streams()
     hta.config_driver(path, profile, mute_sound=True)
     hta.like_videos()
     hta.get_end_time()
