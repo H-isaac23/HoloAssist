@@ -6,7 +6,7 @@ host = "localhost"
 passwd = "DevAisha23!"
 db = "YSL"
 table_name = "stream_data"
-my_dir = "C:/Users/ISAAC/PycharmProjects/videoLikerYoutube2.0/Stream data"
+my_dir = "C:/Users/ISAAC/PycharmProjects/YSL/Stream data"
 path = 'C:/Program Files (x86)/geckodriver.exe'
 profile = 'C:/Users/ISAAC/AppData/Roaming/Mozilla/Firefox/Profiles/fwnbfuph.default-release'
 
