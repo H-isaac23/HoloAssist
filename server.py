@@ -32,6 +32,7 @@ def like():
     hta.append_data_on_db(user, host, passwd, db, table_name)
     hta.open_holotools()
     hta.clear_data()
+    hta.status = ""
     hta.threads = []
     return render_template('like.html')
 
