@@ -1,0 +1,25 @@
+body {
+  font-family: 'Mukta', sans-serif;
+  font-size: 1rem;
+  display: block;
+  line-height: 1.5;
+  background: #f3f8fa;
+}
+
+h3 {
+  text-align: center;
+}
+
+.container {
+  height: 100px;
+  position: relative;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}

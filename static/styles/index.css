@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Mukta:700');
-@media screen and (max-width: 481px){
  * {
 	 box-sizing: border-box;
 }
@@ -111,5 +110,4 @@ div{
 		 align-self: center;
 		 justify-self: center;
 	}
-}
 }
